@@ -26,26 +26,31 @@ server.get('/api/users/:id', (req, res) => {
 
     if (foundById) {
         res.status(200).json({ data: foundById })
-    } else {
+    } else if(!foundById) {
         res.status(404).json({ message: "Coudln't find a user with that ID."})
-    }
+    } else (res.status(500).json({message: "The user information could not be found"}))
+
 })
 /////////////////////////////////////////////////////////////////// Post
 server.post('/api/users', (req, res) => {
     const postData = req.body
     
-
-    users.push({id: shortid.generate(), ...postData})
-
-    res.status(201).json({data: postData, users})
-})
+    if(postData.name && postData.bio){
+        users.push({id: shortid.generate(), ...postData})
+        res.status(201).json({data: postData, users})
+    } else if(!postData.name || !postData.bio) {
+        res.status(400).json({message: "Please provide name and bio for the user"})}
+        else (res.status(500).json({message: "There was an error while saving the user to the database"}))})
 ////////////////////////////////////////////////////////////////// Delete
 server.delete('/api/users/:id', (req, res) => {
     const id = Number(req.params.id)
     const foundById = users.filter( user => user.id !== id)
-    
-    res.status(200).json({data: users})
-})
+    if(foundById=[]){
+        res.status(404).json({message: "The user with the specified ID does not exist"})
+    } else if (foundById != []){
+    res.status(200).json({data: users})}
+    else (res.status(500))
+})  
 ///////////////////////////////////////////////////////////////// Put
 server.put('/api/users/:id', (req, res) => {
     const id = Number(req.params.id);
@@ -55,9 +60,13 @@ server.put('/api/users/:id', (req, res) => {
     if(found) {
         Object.assign(found, changes)
         res.status(200).json({ data: users });
-    } else {
+    }   else if (!changes.name || !changes.bio){
+        res.status(400).json({errorMessage: "Please provide name and bio for the user"})
+    } 
+    
+    else if (!found) {
         res.status(404).json({ message: "A user with that ID was not found" });
-    }
+    } 
 
 })
 
