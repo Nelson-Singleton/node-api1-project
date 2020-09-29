@@ -1,4 +1,5 @@
 const express = require('express') 
+const shortid = require('shortid')
 const server = express()
 server.use(express.json()) 
 
@@ -32,9 +33,9 @@ server.get('/api/users/:id', (req, res) => {
 /////////////////////////////////////////////////////////////////// Post
 server.post('/api/users', (req, res) => {
     const postData = req.body
-    let nextId = 2
+    
 
-    users.push({...postData, id: nextId++})
+    users.push({id: shortid.generate(), ...postData})
 
     res.status(201).json({data: postData, users})
 })
@@ -45,7 +46,20 @@ server.delete('/api/users/:id', (req, res) => {
     
     res.status(200).json({data: users})
 })
+///////////////////////////////////////////////////////////////// Put
+server.put('/api/users/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const changes = req.body;
+    const found = users.find(l => l.id == id);
 
+    if(found) {
+        Object.assign(found, changes)
+        res.status(200).json({ data: users });
+    } else {
+        res.status(404).json({ message: "A user with that ID was not found" });
+    }
+
+})
 
 
 
